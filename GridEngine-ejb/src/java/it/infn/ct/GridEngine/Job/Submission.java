@@ -22,74 +22,44 @@ public class Submission implements SubmissionRemote {
 //    public String submitJob(it.infn.ct.GridEngine.Job.InfrastructureInfo infra, it.infn.ct.GridEngine.JobResubmission.GEJobDescription jobDescription, String commonName, String tcpAddress, int interactionId, String userDescription) {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //    }
-
     @Override
-    public void submitJobASync(InfrastructureInfo infra, GEJobDescription jobDescription, String commonName, String tcpAddress, int interactionId, String userDescription, String userEmail, String DB, String DBUser, String DbUserPwd, boolean randomCE, boolean checkJobStatus) {
-        InfrastructureInfo infras[] = new InfrastructureInfo[1];
+    public void submitJobASync(Wrapper wrapper) {
 
         MultiInfrastructureSubmission mijs = null;
-        if (!DB.equals("") && !DBUser.equals("") && !DbUserPwd.equals("")) {
+        if (!wrapper.getDB().equals("") && !wrapper.getDBUser().equals("") && !wrapper.getDbUserPwd().equals("")) {
             _log.info("Using local DB connection");
-            mijs = new MultiInfrastructureSubmission(DB, DBUser, DbUserPwd);
+            mijs = new MultiInfrastructureSubmission(wrapper.getDB(), wrapper.getDBUser(), wrapper.getDbUserPwd());
         } else {
             _log.info("Using connection Pool");
             mijs = new MultiInfrastructureSubmission();
         }
 
-        mijs.setArguments(jobDescription.getArguments());
+        mijs.setArguments(wrapper.getJobDescription().getArguments());
 
-        mijs.setExecutable(jobDescription.getExecutable());
-        mijs.setInputFiles(jobDescription.getInputFiles());
-        if (!jobDescription.getJDLRequirements().equals("")) {
-            mijs.setJDLRequirements(jobDescription.getJDLRequirements().split(","));
+        mijs.setExecutable(wrapper.getJobDescription().getExecutable());
+        mijs.setInputFiles(wrapper.getJobDescription().getInputFiles());
+        if (!wrapper.getJobDescription().getJDLRequirements().equals("")) {
+            mijs.setJDLRequirements(wrapper.getJobDescription().getJDLRequirements().split(","));
         }
 
-        mijs.setJobError(jobDescription.getError());
-        mijs.setJobOutput(jobDescription.getOutput());
-        mijs.setJobQueue(jobDescription.getQueue());
-        mijs.setNumberOfProcesses(jobDescription.getNumberOfProcesses());
-        mijs.setOutputFiles(jobDescription.getOutputFiles());
-        mijs.setOutputPath(jobDescription.getOutputPath());
-        mijs.setSPMDVariation(jobDescription.getSPDMVariation());
-        mijs.setTotalCPUCount(jobDescription.getTotalCPUCount());
-        mijs.setUserEmail(userEmail);
-
-        if (randomCE) {
-            mijs.setRandomCE(randomCE);
-        }
-
-        if (!checkJobStatus) {
-            mijs.setCheckJobsStatus(checkJobStatus);
-        }
+        mijs.setJobError(wrapper.getJobDescription().getError());
+        mijs.setJobOutput(wrapper.getJobDescription().getOutput());
+        mijs.setJobQueue(wrapper.getJobDescription().getQueue());
+        mijs.setNumberOfProcesses(wrapper.getJobDescription().getNumberOfProcesses());
+        mijs.setOutputFiles(wrapper.getJobDescription().getOutputFiles());
+        mijs.setOutputPath(wrapper.getJobDescription().getOutputPath());
+        mijs.setSPMDVariation(wrapper.getJobDescription().getSPDMVariation());
+        mijs.setTotalCPUCount(wrapper.getJobDescription().getTotalCPUCount());
+        mijs.setUserEmail((wrapper.getUserEmail() != null) ? wrapper.getUserEmail() : "");
+        mijs.setRandomCE(wrapper.isRandomCE());
+        mijs.setCheckJobsStatus(true);
+//        if (!wrapper.isCheckJobStatus()) {
+//
+//        }
 
         _log.debug("Submitting an async job");
-        mijs.submitJobAsync(infra, commonName, tcpAddress, interactionId, userDescription);
+        mijs.submitJobAsync(wrapper.getInfra(), wrapper.getCommonName(), wrapper.getTcpAddress(), wrapper.getInteractionId(), wrapper.getUserDescription());
         _log.debug("Job submitted");
     }
-//
-//    @Override
-//    public void setUserEmail(String userEmail) {
-//        this.userEmail = userEmail;
-//    }
-//
-//    @Override
-//    public void setRandomCE(boolean randomCE) {
-//        this.randomCE = randomCE;
-//    }
-//
-//    @Override
-//    public void setDB(String db) {
-//        this.DB = db;
-//    }
-//
-//    @Override
-//    public void setDbName(String dbUserName) {
-//        this.DBUser = dbUserName;
-//    }
-//
-//    @Override
-//    public void setDbPasswd(String dbUserPasswd) {
-//        this.DBUserPwd = dbUserPasswd;
-//    }
 
 }
